@@ -2,8 +2,15 @@ package com.knoldus.model
 
 import java.sql.{Connection, ResultSet}
 import com.google.inject.Inject
+import scala.reflect.runtime.universe._
 
 class HiveOperations @Inject()(hiveConnection: HiveConnection) {
+
+  val dPHClassName = "DPH"
+
+  def classAccessors[T: TypeTag]: List[String] = typeOf[T].members.collect {
+    case methodSymbol: MethodSymbol if methodSymbol.isCaseAccessor => methodSymbol.fullName.replace(dPHClassName + ".", "")
+  }.toList
 
   def createDatabase(connection: Connection): Boolean = {
     val statement = connection.createStatement()
