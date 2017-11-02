@@ -1,39 +1,35 @@
-package com.knoldus.model
+package com.knoldus
+package model
 
 import java.sql.{Connection, ResultSet}
 import com.google.inject.Inject
-import scala.reflect.runtime.universe._
 
 class HiveOperations @Inject()(hiveConnection: HiveConnection) {
 
-  val dPHClassName = "DPH"
+  val connection: Connection = hiveConnection.getHiveConnection
 
-  def classAccessors[T: TypeTag]: List[String] = typeOf[T].members.collect {
-    case methodSymbol: MethodSymbol if methodSymbol.isCaseAccessor => methodSymbol.fullName.replace(dPHClassName + ".", "")
-  }.toList
-
-  def createDatabase(connection: Connection): Boolean = {
+  def createDatabase(): Boolean = {
     val statement = connection.createStatement()
-    statement.execute("create database if not exists quetzal")
+    statement.execute(s"create database if not exists $databaseName")
   }
 
-  def selectDatabase(connection: Connection): Boolean = {
+  def selectDatabase(): Boolean = {
     val statement = connection.createStatement()
-    statement.execute("use quetzal")
+    statement.execute(s"use $databaseName")
   }
 
-  def createDphTable(connection: Connection): Boolean = {
+  def createDphTable(): Boolean = {
     val statement = connection.createStatement()
-    statement.execute("create table if not exists dph (entity string, spill  int, pred1  string, pred2  string, pred3  string, pred4  " +
+    statement.execute(s"create table if not exists $databaseName.dph (entity string, spill  int, pred1  string, pred2  string, pred3  string, pred4  " +
       "string, pred5  string, val1   string, val2   string, val3   string, val4   string, val5   string, domain string )")
   }
 
-  def createPredicateTable(connection: Connection): Boolean = {
+  def createPredicateTable(): Boolean = {
     val statement = connection.createStatement()
-    statement.execute("create table if not exists predicateLookUp (predicate string, location string)")
+    statement.execute(s"create table if not exists $databaseName.predicateLookUp (predicate string, location string)")
   }
 
-  def insertDphData(connection: Connection, dph: DPH): Boolean = {
+  def insertDphData(dph: DPH): Boolean = {
     val statement = connection.createStatement()
     statement.execute(
       s"""insert into dph (entity, spill, pred1, pred2, pred3, pred4, pred5, val1, val2, val3, val4, val5, domain)
@@ -41,7 +37,7 @@ class HiveOperations @Inject()(hiveConnection: HiveConnection) {
          |"${dph.val2}",	"${dph.val3}", "${dph.val4}",	"${dph.val5}", "${dph.domain}")""".stripMargin)
   }
 
-  def selectDphData(connection: Connection): List[DPH] = {
+  def selectDphData(): List[DPH] = {
     val statement = connection.createStatement()
     val resultSet = statement.executeQuery("select * from dph")
     getDphDataFromResultSet(resultSet, Nil)

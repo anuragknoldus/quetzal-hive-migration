@@ -1,4 +1,5 @@
-package com.knoldus.model
+package com.knoldus
+package model
 
 case class DPH(
                 entity: String,

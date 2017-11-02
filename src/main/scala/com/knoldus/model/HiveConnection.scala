@@ -1,10 +1,9 @@
-package com.knoldus.model
+package com.knoldus
+package model
 
 import java.sql.{Connection, DriverManager}
 
 class HiveConnection {
-
-  val driverName = "org.apache.hive.jdbc.HiveDriver"
 
   def getHiveConnection: Connection = {
 
@@ -16,7 +15,7 @@ class HiveConnection {
         System.exit(1)
     }
 
-    DriverManager.getConnection("jdbc:hive2://localhost:10000/default")
+    DriverManager.getConnection(dataBaseUrl)
   }
 }
 
